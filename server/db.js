@@ -2,7 +2,7 @@ const path = require('path')
 const fs = require('node:fs')
 const { DatabaseSync } = require('node:sqlite')
 
-const dataDir = path.join(__dirname, '..', 'data')
+const dataDir = process.env.DATA_DIR || path.join(__dirname, '..', 'data')
 fs.mkdirSync(dataDir, { recursive: true })
 const db = new DatabaseSync(path.join(dataDir, 'quiz.db'))
 
