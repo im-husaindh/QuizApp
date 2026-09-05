@@ -97,15 +97,32 @@ socket.on('lobbyUpdate', ({ count, participants }) => {
   el('playerList').innerHTML = participants.map(n => `<li>${escapeHtml(n)}</li>`).join('')
 })
 
-socket.on('questionStart', ({ index, total }) => {
+let countdownTimer = null
+
+socket.on('questionStart', ({ index, total, text, options, deadline }) => {
   el('lobbyView').hidden = true
   el('revealView').hidden = true
   el('questionView').hidden = false
   el('qIndex').textContent = index + 1
   el('qTotal').textContent = total
+  el('qText').textContent = text
+  el('qOptionsList').innerHTML = ''
+  options.forEach(opt => {
+    const li = document.createElement('li')
+    li.textContent = opt
+    el('qOptionsList').appendChild(li)
+  })
+
+  clearInterval(countdownTimer)
+  countdownTimer = setInterval(() => {
+    const secondsLeft = Math.max(0, Math.round((deadline - Date.now()) / 1000))
+    el('timeLeft').textContent = secondsLeft
+    if (secondsLeft <= 0) clearInterval(countdownTimer)
+  }, 200)
 })
 
 socket.on('reveal', ({ leaderboard }) => {
+  clearInterval(countdownTimer)
   el('questionView').hidden = true
   el('revealView').hidden = false
   el('leaderboard').innerHTML = leaderboard.map(p => `<li>${escapeHtml(p.nickname)}: ${p.score}</li>`).join('')
