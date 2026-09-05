@@ -1,6 +1,10 @@
 const socket = io()
 const el = (id) => document.getElementById(id)
 
+function escapeHtml(str) {
+  return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))
+}
+
 let roomCode = null
 let myNickname = null
 let currentQuestionIndex = null
@@ -66,5 +70,5 @@ socket.on('reveal', ({ correctIndex, leaderboard }) => {
 socket.on('final', ({ leaderboard }) => {
   el('revealView').hidden = true
   el('finalView').hidden = false
-  el('finalLeaderboard').innerHTML = leaderboard.map(p => `<li>${p.nickname}: ${p.score}</li>`).join('')
+  el('finalLeaderboard').innerHTML = leaderboard.map(p => `<li>${escapeHtml(p.nickname)}: ${p.score}</li>`).join('')
 })
