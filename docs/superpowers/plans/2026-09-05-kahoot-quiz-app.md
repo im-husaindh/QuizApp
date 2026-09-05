@@ -332,7 +332,7 @@ git commit -m "Add SQLite persistence for quizzes and results"
   - `getRoomState(roomCode) -> room | undefined`
   - `joinRoom(roomCode, playerId, nickname) -> { ok: true } | { ok: false, error }`
   - `lobbySnapshot(roomCode) -> { count, participants: [nickname] }`
-  - `startQuestion(roomCode, onReveal: (payload) => void) -> { index, total, text, options, timeLimitSeconds, deadline } | null` (null means the quiz is over)
+  - `startQuestion(roomCode, onReveal: (payload) => void) -> { index, total, text, options, timeLimitSeconds, deadline } | null | undefined` — `null` means the quiz is over (no more questions); `undefined` means the call was ignored because the room doesn't exist or isn't in a phase (`lobby`/`reveal`) that can start a new question (e.g. a duplicate "next" click arriving while a question is already live) — no state is mutated in that case.
   - `submitAnswer(roomCode, playerId, questionIndex, optionIndex) -> { ok: true } | { ok: false, error }`
   - `getFinal(roomCode) -> { leaderboard: [{nickname, score}], winner: string | null }`
 
@@ -561,6 +561,9 @@ function registerSocketHandlers(io) {
     socket.on('hostNext', ({ roomCode }, cb) => {
       if (!authenticatedHosts.has(socket.id)) return cb({ ok: false, error: 'Not authenticated' })
       const q = rooms.startQuestion(roomCode, (payload) => io.to(roomCode).emit('reveal', payload))
+      if (q === undefined) {
+        return cb({ ok: false, error: 'Not ready for next question' })
+      }
       if (q) {
         io.to(roomCode).emit('questionStart', q)
       } else {
