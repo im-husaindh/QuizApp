@@ -1,14 +1,17 @@
+*, *::before, *::after { box-sizing: border-box; }
 html, body { height: 100%; }
+html { overflow-x: hidden; }
 
 body {
+  position: relative;
   min-height: 100vh;
-  box-sizing: border-box;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   background: #1a1a2e;
   color: #f2f2f2;
-  padding: 3vh 3vw;
+  padding: 3rem 3vw;
 }
 
 h1, h2, h3 { text-align: center; }
@@ -33,17 +36,31 @@ button {
 }
 button:hover { background: #6163ee; }
 
-/* Admin screens (login, quiz management): a comfortable form width,
-   not stretched across the whole viewport. */
-#login, #dashboard {
+/* Admin screens (login, quiz management): scale fluidly between phone
+   and laptop instead of a fixed width -- comfortably narrow on a small
+   screen, genuinely using the available space on a larger one. */
+#login {
   width: 100%;
-  max-width: 440px;
+  max-width: clamp(280px, 88vw, 440px);
+}
+#dashboard {
+  width: 100%;
+  max-width: clamp(320px, 85vw, 820px);
 }
 
-/* Live game screens: wide and large-print, meant to be projected. */
+/* Live game screens: wide and large-print, meant to be projected;
+   scales further on very large/projector displays. */
 #live {
   width: 100%;
-  max-width: 960px;
+  max-width: clamp(320px, 92vw, 1100px);
+}
+
+.optionsGrid, .formRow { display: flex; flex-direction: column; gap: 0; }
+.optionsGrid input, .formRow > * { margin: 0.25rem 0; }
+
+@media (min-width: 560px) {
+  .optionsGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 0.75rem; }
+  .formRow { display: grid; grid-template-columns: 1fr 1fr; gap: 0 0.75rem; }
 }
 
 #quizList, #questionList { list-style: none; padding: 0; text-align: left; }
@@ -111,9 +128,9 @@ button:hover { background: #6163ee; }
 }
 
 #backToQuizzesBtn, #homeBtn {
-  display: block;
+  display: inline-block;
   width: auto;
-  margin: 0 0 1rem;
+  margin: 0 0 1.5rem;
   padding: 0.5rem 1rem;
   font-size: 0.9rem;
   background: transparent;

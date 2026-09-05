@@ -1,10 +1,12 @@
+*, *::before, *::after { box-sizing: border-box; }
 html, body { height: 100%; }
+html { overflow-x: hidden; }
 
 body {
   min-height: 100dvh;
+  width: 100%;
   max-width: 480px;
   margin: 0 auto;
-  box-sizing: border-box;
   padding: 1.5rem;
   display: flex;
   flex-direction: column;

@@ -2,6 +2,7 @@
 <html>
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Quiz Host</title>
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="host.css">
@@ -27,17 +28,21 @@
       <div id="questionList"></div>
       <h3>Add question</h3>
       <input id="qText" placeholder="Question text">
-      <input id="qOpt0" placeholder="Option 1">
-      <input id="qOpt1" placeholder="Option 2">
-      <input id="qOpt2" placeholder="Option 3">
-      <input id="qOpt3" placeholder="Option 4">
-      <select id="qCorrect">
-        <option value="0">Option 1 correct</option>
-        <option value="1">Option 2 correct</option>
-        <option value="2">Option 3 correct</option>
-        <option value="3">Option 4 correct</option>
-      </select>
-      <input id="qTime" type="number" value="20" placeholder="Time limit (seconds)">
+      <div class="optionsGrid">
+        <input id="qOpt0" placeholder="Option 1">
+        <input id="qOpt1" placeholder="Option 2">
+        <input id="qOpt2" placeholder="Option 3">
+        <input id="qOpt3" placeholder="Option 4">
+      </div>
+      <div class="formRow">
+        <select id="qCorrect">
+          <option value="0">Option 1 correct</option>
+          <option value="1">Option 2 correct</option>
+          <option value="2">Option 3 correct</option>
+          <option value="3">Option 4 correct</option>
+        </select>
+        <input id="qTime" type="number" value="20" placeholder="Time limit (seconds)">
+      </div>
       <button id="addQuestionBtn">Add question</button>
       <button id="cancelEditBtn" hidden>Cancel edit</button>
       <button id="startSessionBtn">Start session</button>
