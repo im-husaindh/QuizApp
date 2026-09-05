@@ -110,6 +110,18 @@ button:hover { background: #6163ee; }
   font-weight: 700;
 }
 
+#backToQuizzesBtn, #homeBtn {
+  display: block;
+  width: auto;
+  margin: 0 0 1rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  background: transparent;
+  border: 1px solid #3a3a5c;
+  color: #cfcfe8;
+}
+#backToQuizzesBtn:hover, #homeBtn:hover { background: rgba(255, 255, 255, 0.08); }
+
 #playerCount { font-size: 1.5rem; font-weight: 700; }
 
 #leaderboard, #finalLeaderboard {

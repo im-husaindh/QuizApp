@@ -114,6 +114,20 @@ function resetQuestionForm() {
 
 el('cancelEditBtn').onclick = resetQuestionForm
 
+el('backToQuizzesBtn').onclick = () => {
+  el('quizEditor').hidden = true
+  currentQuizId = null
+  resetQuestionForm()
+}
+
+el('homeBtn').onclick = () => {
+  if (!confirm('Go back to the dashboard? The session keeps running in the background, but you\'ll stop seeing live updates for it here.')) return
+  el('live').hidden = true
+  el('dashboard').hidden = false
+  currentRoomCode = null
+  loadQuizzes()
+}
+
 el('addQuestionBtn').onclick = () => {
   const text = el('qText').value.trim()
   const options = [el('qOpt0').value.trim(), el('qOpt1').value.trim(), el('qOpt2').value.trim(), el('qOpt3').value.trim()]
