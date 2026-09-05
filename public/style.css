@@ -1,4 +1,5 @@
 body { font-family: system-ui, sans-serif; margin: 0; }
+[hidden] { display: none !important; }
 button { padding: 0.75rem 1rem; margin: 0.25rem 0; font-size: 1rem; border: none; border-radius: 6px; cursor: pointer; }
 input, select { padding: 0.5rem; margin: 0.25rem 0; width: 100%; font-size: 1rem; box-sizing: border-box; }
 .error { color: #c00; }
