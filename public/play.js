@@ -57,14 +57,16 @@ function answer(optionIndex) {
   socket.emit('submitAnswer', { roomCode, questionIndex: currentQuestionIndex, optionIndex }, () => {})
 }
 
-socket.on('reveal', ({ correctIndex, leaderboard }) => {
+socket.on('reveal', ({ correctIndex }) => {
   clearInterval(countdownTimer)
   el('questionView').hidden = true
   el('revealView').hidden = false
   const correct = answeredIndex === correctIndex
   el('resultMsg').textContent = correct ? 'Correct!' : 'Wrong answer'
-  const me = leaderboard.find(p => p.nickname === myNickname)
-  el('myScore').textContent = me ? me.score : 0
+})
+
+socket.on('yourResult', ({ score }) => {
+  el('myScore').textContent = score
 })
 
 socket.on('final', ({ leaderboard }) => {
