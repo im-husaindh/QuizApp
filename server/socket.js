@@ -20,12 +20,13 @@ function on(socket, event, handler) {
     // either position — detect it instead of assuming a fixed (arg, cb) shape.
     const ack = typeof b === 'function' ? b : (typeof a === 'function' ? a : () => {})
     const arg = typeof a === 'function' ? {} : (a || {})
-    try {
-      handler(arg, ack)
-    } catch (err) {
+    // handler may be sync or async (db.js's Turso backend is network-async) --
+    // wrapping the call in Promise.resolve().then() catches both a thrown
+    // error and a rejected promise in the same .catch.
+    Promise.resolve().then(() => handler(arg, ack)).catch((err) => {
       console.error(`Error handling '${event}':`, err)
       ack({ ok: false, error: 'Server error' })
-    }
+    })
   })
 }
 
@@ -41,55 +42,55 @@ function registerSocketHandlers(io) {
       }
     })
 
-    on(socket, 'listQuizzes', (payload, cb) => {
+    on(socket, 'listQuizzes', async (payload, cb) => {
       if (!authenticatedHosts.has(socket.id)) return cb({ ok: false, error: 'Not authenticated' })
-      cb({ quizzes: db.listQuizzes() })
+      cb({ quizzes: await db.listQuizzes() })
     })
 
-    on(socket, 'createQuiz', (payload, cb) => {
+    on(socket, 'createQuiz', async (payload, cb) => {
       if (!authenticatedHosts.has(socket.id)) return cb({ ok: false, error: 'Not authenticated' })
       const { title } = payload
-      cb({ quiz: db.createQuiz(title) })
+      cb({ quiz: await db.createQuiz(title) })
     })
 
-    on(socket, 'addQuestion', (payload, cb) => {
+    on(socket, 'addQuestion', async (payload, cb) => {
       if (!authenticatedHosts.has(socket.id)) return cb({ ok: false, error: 'Not authenticated' })
       if (!isValidQuestionPayload(payload)) return cb({ ok: false, error: 'Question text, all 4 options, and a valid time limit are required' })
       const { quizId, text, options, correctIndex, timeLimitSeconds } = payload
-      cb({ question: db.addQuestion(quizId, { text: text.trim(), options: options.map(o => o.trim()), correctIndex, timeLimitSeconds }) })
+      cb({ question: await db.addQuestion(quizId, { text: text.trim(), options: options.map(o => o.trim()), correctIndex, timeLimitSeconds }) })
     })
 
-    on(socket, 'getQuiz', (payload, cb) => {
+    on(socket, 'getQuiz', async (payload, cb) => {
       if (!authenticatedHosts.has(socket.id)) return cb({ ok: false, error: 'Not authenticated' })
       const { quizId } = payload
-      cb(db.getQuizWithQuestions(quizId) || { quiz: null, questions: [] })
+      cb((await db.getQuizWithQuestions(quizId)) || { quiz: null, questions: [] })
     })
 
-    on(socket, 'deleteQuiz', (payload, cb) => {
+    on(socket, 'deleteQuiz', async (payload, cb) => {
       if (!authenticatedHosts.has(socket.id)) return cb({ ok: false, error: 'Not authenticated' })
       const { quizId } = payload
-      db.deleteQuiz(quizId)
+      await db.deleteQuiz(quizId)
       cb({ ok: true })
     })
 
-    on(socket, 'updateQuestion', (payload, cb) => {
+    on(socket, 'updateQuestion', async (payload, cb) => {
       if (!authenticatedHosts.has(socket.id)) return cb({ ok: false, error: 'Not authenticated' })
       if (!isValidQuestionPayload(payload)) return cb({ ok: false, error: 'Question text, all 4 options, and a valid time limit are required' })
       const { questionId, text, options, correctIndex, timeLimitSeconds } = payload
-      cb({ question: db.updateQuestion(questionId, { text: text.trim(), options: options.map(o => o.trim()), correctIndex, timeLimitSeconds }) })
+      cb({ question: await db.updateQuestion(questionId, { text: text.trim(), options: options.map(o => o.trim()), correctIndex, timeLimitSeconds }) })
     })
 
-    on(socket, 'startSession', (payload, cb) => {
+    on(socket, 'startSession', async (payload, cb) => {
       if (!authenticatedHosts.has(socket.id)) return cb({ ok: false, error: 'Not authenticated' })
       const { quizId } = payload
-      const data = db.getQuizWithQuestions(quizId)
+      const data = await db.getQuizWithQuestions(quizId)
       if (!data || data.questions.length === 0) return cb({ ok: false, error: 'Quiz has no questions' })
       const roomCode = rooms.createRoom(quizId, data.questions)
       socket.join(roomCode)
       cb({ ok: true, roomCode })
     })
 
-    on(socket, 'hostNext', (payload, cb) => {
+    on(socket, 'hostNext', async (payload, cb) => {
       if (!authenticatedHosts.has(socket.id)) return cb({ ok: false, error: 'Not authenticated' })
       const { roomCode } = payload
       const q = rooms.startQuestion(roomCode, (revealPayload) => {
@@ -105,7 +106,7 @@ function registerSocketHandlers(io) {
       } else {
         const room = rooms.getRoomState(roomCode)
         const finalResult = rooms.getFinal(roomCode)
-        db.saveResults(room.quizId, roomCode, finalResult.leaderboard)
+        await db.saveResults(room.quizId, roomCode, finalResult.leaderboard)
         io.to(roomCode).emit('final', finalResult)
       }
       cb({ ok: true })
