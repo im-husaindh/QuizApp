@@ -84,13 +84,23 @@ button:hover { background: #6163ee; }
 #liveRoomCode { text-align: center; font-size: 1.25rem; color: #cfcfe8; margin: 0 0 1.5rem; }
 #roomCode { font-size: 2.5rem; font-weight: 700; letter-spacing: 0.15em; color: #fff; }
 
-#liveQText { font-size: 2.75rem; font-weight: 700; text-align: center; margin: 1.5rem 0; line-height: 1.25; }
+#liveQText {
+  font-size: clamp(1.75rem, 4vw, 2.75rem);
+  font-weight: 700;
+  text-align: center;
+  margin: 1.5rem 0;
+  line-height: 1.25;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  hyphens: auto;
+}
 
 #qOptionsList {
   list-style: none;
   padding: 0;
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-rows: minmax(90px, auto);
   gap: 1rem;
   max-width: 700px;
   margin: 1.5rem auto;
@@ -98,10 +108,16 @@ button:hover { background: #6163ee; }
 #qOptionsList li {
   padding: 1.25rem;
   border-radius: 10px;
-  font-size: 1.4rem;
+  font-size: clamp(1rem, 2.2vw, 1.4rem);
   font-weight: 600;
   text-align: center;
   color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  hyphens: auto;
 }
 #qOptionsList li:nth-child(1) { background: #e21b3c; }
 #qOptionsList li:nth-child(2) { background: #1368ce; }
