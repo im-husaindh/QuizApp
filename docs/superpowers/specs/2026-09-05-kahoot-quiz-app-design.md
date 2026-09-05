@@ -22,7 +22,8 @@ revealed at the end.
 
 - **Server**: Node.js + Express + Socket.IO (WebSockets with built-in
   reconnection — needed for ~500 phones on venue wifi).
-- **Persistence**: SQLite via `better-sqlite3` (no ORM). Stores quiz
+- **Persistence**: SQLite via Node's built-in `node:sqlite` module
+  (`DatabaseSync`, no ORM, no native compilation required). Stores quiz
   definitions and finished-session results only.
 - **Live session state**: in-memory (`Map<roomCode, SessionState>`) on the
   server. Not persisted — a server crash mid-quiz loses the live game, which

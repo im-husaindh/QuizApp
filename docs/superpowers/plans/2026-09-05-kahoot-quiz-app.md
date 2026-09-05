@@ -6,7 +6,7 @@
 
 **Architecture:** Single Node.js process (Express + Socket.IO) serves plain HTML/CSS/JS pages and holds one active quiz session per room in server memory; SQLite persists quiz definitions and finished-session results only.
 
-**Tech Stack:** Node.js, Express, Socket.IO, better-sqlite3, vanilla HTML/CSS/JS (no build step), Node's built-in `node:test` runner.
+**Tech Stack:** Node.js, Express, Socket.IO, Node's built-in `node:sqlite` module, vanilla HTML/CSS/JS (no build step), Node's built-in `node:test` runner.
 
 **Spec:** `docs/superpowers/specs/2026-09-05-kahoot-quiz-app-design.md`
 
@@ -14,7 +14,7 @@
 
 - Single Node.js server process; no horizontal scaling, no Redis/pub-sub.
 - Live session state (lobby membership, current question, in-progress answers) lives only in an in-memory `Map`, keyed by room code — never written to SQLite.
-- SQLite (`better-sqlite3`, no ORM) persists only `quizzes`, `questions`, and finished-session `results`.
+- SQLite via Node's built-in `node:sqlite` (`DatabaseSync`, no ORM, no native build) persists only `quizzes`, `questions`, and finished-session `results`.
 - Host access is gated by one shared password (env var `HOST_PASSWORD`), not per-user accounts.
 - Scoring: wrong/no answer = 0; correct = `round(500 + 500 * (remaining_ms / limit_ms))`, computed server-side from the server-received answer timestamp.
 - No mid-quiz join: a nickname can only join a room while it is in the `lobby` phase.
@@ -31,7 +31,7 @@ code/
   .gitignore
   server/
     index.js     - Express app + HTTP server + Socket.IO bootstrap
-    db.js        - SQLite schema + quiz/question/result CRUD
+    db.js        - node:sqlite schema + quiz/question/result CRUD
     scoring.js   - pure score-calculation function
     rooms.js     - in-memory room state machine (lobby/question/reveal/final)
     socket.js    - Socket.IO event handlers wiring rooms.js + db.js
@@ -69,12 +69,13 @@ code/
     "test": "node --test test/"
   },
   "dependencies": {
-    "better-sqlite3": "^11.3.0",
     "express": "^4.19.2",
     "socket.io": "^4.7.5"
   }
 }
 ```
+
+Note: persistence uses Node's built-in `node:sqlite` module (`require('node:sqlite')`), not an npm package, so it is not listed as a dependency — see Task 3.
 
 - [ ] **Step 2: Create `.gitignore`**
 
@@ -212,9 +213,9 @@ git commit -m "Add Kahoot-style speed scoring with tests"
 
 ```js
 const path = require('path')
-const Database = require('better-sqlite3')
+const { DatabaseSync } = require('node:sqlite')
 
-const db = new Database(path.join(__dirname, '..', 'data', 'quiz.db'))
+const db = new DatabaseSync(path.join(__dirname, '..', 'data', 'quiz.db'))
 
 db.exec(`
   CREATE TABLE IF NOT EXISTS quizzes (
@@ -279,14 +280,20 @@ function getQuizWithQuestions(quizId) {
 function saveResults(quizId, sessionCode, leaderboard) {
   const insert = db.prepare('INSERT INTO results (quiz_id, session_code, nickname, total_score, played_at) VALUES (?, ?, ?, ?, ?)')
   const now = Date.now()
-  const insertMany = db.transaction((rows) => {
-    for (const row of rows) insert.run(quizId, sessionCode, row.nickname, row.score, now)
-  })
-  insertMany(leaderboard)
+  db.exec('BEGIN')
+  try {
+    for (const row of leaderboard) insert.run(quizId, sessionCode, row.nickname, row.score, now)
+    db.exec('COMMIT')
+  } catch (err) {
+    db.exec('ROLLBACK')
+    throw err
+  }
 }
 
 module.exports = { createQuiz, addQuestion, listQuizzes, getQuizWithQuestions, saveResults }
 ```
+
+`node:sqlite`'s `DatabaseSync` needs no native compilation (unlike npm packages such as `better-sqlite3`), so it is available as soon as Node.js is installed — no extra dependency, no build toolchain required.
 
 - [ ] **Step 2: Manually verify the schema and CRUD**
 
@@ -1055,7 +1062,8 @@ Expected: no console errors in any tab; leaderboard/final scores match the scori
 Run:
 ```bash
 node -e "
-const db = require('better-sqlite3')('data/quiz.db');
+const { DatabaseSync } = require('node:sqlite');
+const db = new DatabaseSync('data/quiz.db');
 console.log(db.prepare('SELECT * FROM results').all());
 "
 ```
