@@ -66,6 +66,27 @@ function getQuizWithQuestions(quizId) {
   return { quiz, questions }
 }
 
+function deleteQuiz(quizId) {
+  db.exec('BEGIN')
+  try {
+    db.prepare('DELETE FROM results WHERE quiz_id = ?').run(quizId)
+    db.prepare('DELETE FROM questions WHERE quiz_id = ?').run(quizId)
+    db.prepare('DELETE FROM quizzes WHERE id = ?').run(quizId)
+    db.exec('COMMIT')
+  } catch (err) {
+    db.exec('ROLLBACK')
+    throw err
+  }
+}
+
+function updateQuestion(questionId, { text, options, correctIndex, timeLimitSeconds }) {
+  db.prepare(`
+    UPDATE questions SET text = ?, option1 = ?, option2 = ?, option3 = ?, option4 = ?, correct_index = ?, time_limit_seconds = ?
+    WHERE id = ?
+  `).run(text, options[0], options[1], options[2], options[3], correctIndex, timeLimitSeconds, questionId)
+  return { id: questionId, text, options, correctIndex, timeLimitSeconds }
+}
+
 function saveResults(quizId, sessionCode, leaderboard) {
   const insert = db.prepare('INSERT INTO results (quiz_id, session_code, nickname, total_score, played_at) VALUES (?, ?, ?, ?, ?)')
   const now = Date.now()
@@ -79,4 +100,4 @@ function saveResults(quizId, sessionCode, leaderboard) {
   }
 }
 
-module.exports = { createQuiz, addQuestion, listQuizzes, getQuizWithQuestions, saveResults }
+module.exports = { createQuiz, addQuestion, listQuizzes, getQuizWithQuestions, saveResults, deleteQuiz, updateQuestion }

@@ -1,0 +1,87 @@
+html, body { height: 100%; }
+
+body {
+  min-height: 100vh;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #1a1a2e;
+  color: #f2f2f2;
+  padding: 3vh 3vw;
+}
+
+#login, #dashboard, #live {
+  width: 100%;
+  max-width: 900px;
+}
+
+h1, h2, h3 { text-align: center; }
+
+input, select {
+  background: #0f0f1e;
+  color: #f2f2f2;
+  border: 1px solid #3a3a5c;
+  border-radius: 6px;
+}
+
+button {
+  display: block;
+  width: 100%;
+  background: #4a4de7;
+  color: #fff;
+}
+button:hover { background: #6163ee; }
+
+#quizList, #questionList { list-style: none; padding: 0; text-align: left; }
+
+#quizList li, #questionList > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  margin-bottom: 0.5rem;
+}
+
+#quizList li span, #questionList > div span { flex: 1; }
+#quizList button, #questionList button { width: auto; flex: none; }
+
+#playerList { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; }
+#playerList li { background: rgba(255, 255, 255, 0.1); padding: 0.5rem 1rem; border-radius: 999px; margin: 0; }
+
+#roomCode { font-size: 4rem; font-weight: 700; letter-spacing: 0.15em; display: block; text-align: center; }
+
+#qText { font-size: 2rem; text-align: center; margin: 1.5rem 0; }
+
+#qOptionsList {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  max-width: 700px;
+  margin: 0 auto;
+}
+#qOptionsList li {
+  background: #16213e;
+  padding: 1.25rem;
+  border-radius: 10px;
+  font-size: 1.4rem;
+  text-align: center;
+}
+
+#timeLeft, #playerCount { font-size: 1.5rem; font-weight: 700; }
+
+#leaderboard, #finalLeaderboard {
+  list-style: decimal;
+  max-width: 500px;
+  margin: 1rem auto;
+  font-size: 1.3rem;
+}
+
+#winner { font-size: 2.5rem; font-weight: 700; }
+
+#nextBtn, #nextBtn2, #startSessionBtn { display: block; width: auto; margin: 1.5rem auto 0; padding: 1rem 2.5rem; font-size: 1.2rem; }

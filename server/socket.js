@@ -56,6 +56,19 @@ function registerSocketHandlers(io) {
       cb(db.getQuizWithQuestions(quizId) || { quiz: null, questions: [] })
     })
 
+    on(socket, 'deleteQuiz', (payload, cb) => {
+      if (!authenticatedHosts.has(socket.id)) return cb({ ok: false, error: 'Not authenticated' })
+      const { quizId } = payload
+      db.deleteQuiz(quizId)
+      cb({ ok: true })
+    })
+
+    on(socket, 'updateQuestion', (payload, cb) => {
+      if (!authenticatedHosts.has(socket.id)) return cb({ ok: false, error: 'Not authenticated' })
+      const { questionId, text, options, correctIndex, timeLimitSeconds } = payload
+      cb({ question: db.updateQuestion(questionId, { text, options, correctIndex, timeLimitSeconds }) })
+    })
+
     on(socket, 'startSession', (payload, cb) => {
       if (!authenticatedHosts.has(socket.id)) return cb({ ok: false, error: 'Not authenticated' })
       const { quizId } = payload

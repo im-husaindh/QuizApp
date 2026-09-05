@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <title>Quiz Host</title>
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="host.css">
 </head>
 <body>
   <div id="login">
@@ -37,13 +38,14 @@
       </select>
       <input id="qTime" type="number" value="20" placeholder="Time limit (seconds)">
       <button id="addQuestionBtn">Add question</button>
+      <button id="cancelEditBtn" hidden>Cancel edit</button>
       <button id="startSessionBtn">Start session</button>
     </div>
   </div>
 
   <div id="live" hidden>
-    <h1>Room code: <span id="roomCode"></span></h1>
     <div id="lobbyView">
+      <h1>Room code: <span id="roomCode"></span></h1>
       <p><span id="playerCount">0</span> joined</p>
       <ul id="playerList"></ul>
       <button id="nextBtn">Start quiz</button>

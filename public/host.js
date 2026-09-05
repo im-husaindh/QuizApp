@@ -1,6 +1,7 @@
 const socket = io()
 let currentQuizId = null
 let currentRoomCode = null
+let editingQuestionId = null
 
 const el = (id) => document.getElementById(id)
 
@@ -25,11 +26,26 @@ function loadQuizzes() {
     el('quizList').innerHTML = ''
     for (const quiz of quizzes) {
       const li = document.createElement('li')
-      li.textContent = quiz.title + ' '
+      const span = document.createElement('span')
+      span.textContent = quiz.title
       const editBtn = document.createElement('button')
       editBtn.textContent = 'Manage'
       editBtn.onclick = () => openQuizEditor(quiz.id, quiz.title)
+      const deleteBtn = document.createElement('button')
+      deleteBtn.textContent = 'Delete'
+      deleteBtn.onclick = () => {
+        if (!confirm(`Delete quiz "${quiz.title}"? This cannot be undone.`)) return
+        socket.emit('deleteQuiz', { quizId: quiz.id }, () => {
+          if (currentQuizId === quiz.id) {
+            el('quizEditor').hidden = true
+            currentQuizId = null
+          }
+          loadQuizzes()
+        })
+      }
+      li.appendChild(span)
       li.appendChild(editBtn)
+      li.appendChild(deleteBtn)
       el('quizList').appendChild(li)
     }
   })
@@ -49,31 +65,73 @@ function openQuizEditor(quizId, title) {
   currentQuizId = quizId
   el('quizEditor').hidden = false
   el('quizEditorTitle').textContent = title
+  resetQuestionForm()
   refreshQuestions()
 }
 
 function refreshQuestions() {
   socket.emit('getQuiz', { quizId: currentQuizId }, ({ questions }) => {
-    el('questionList').innerHTML = questions.map(q => `<p>${escapeHtml(q.text)}</p>`).join('')
+    el('questionList').innerHTML = ''
+    questions.forEach(q => {
+      const row = document.createElement('div')
+      const span = document.createElement('span')
+      span.textContent = q.text
+      const editBtn = document.createElement('button')
+      editBtn.textContent = 'Edit'
+      editBtn.onclick = () => startEditQuestion(q)
+      row.appendChild(span)
+      row.appendChild(editBtn)
+      el('questionList').appendChild(row)
+    })
   })
 }
 
+function startEditQuestion(q) {
+  editingQuestionId = q.id
+  el('qText').value = q.text
+  el('qOpt0').value = q.options[0]
+  el('qOpt1').value = q.options[1]
+  el('qOpt2').value = q.options[2]
+  el('qOpt3').value = q.options[3]
+  el('qCorrect').value = String(q.correctIndex)
+  el('qTime').value = q.timeLimitSeconds
+  el('addQuestionBtn').textContent = 'Update question'
+  el('cancelEditBtn').hidden = false
+}
+
+function resetQuestionForm() {
+  editingQuestionId = null
+  el('qText').value = ''
+  el('qOpt0').value = ''
+  el('qOpt1').value = ''
+  el('qOpt2').value = ''
+  el('qOpt3').value = ''
+  el('qCorrect').value = '0'
+  el('qTime').value = 20
+  el('addQuestionBtn').textContent = 'Add question'
+  el('cancelEditBtn').hidden = true
+}
+
+el('cancelEditBtn').onclick = resetQuestionForm
+
 el('addQuestionBtn').onclick = () => {
-  const options = [el('qOpt0').value, el('qOpt1').value, el('qOpt2').value, el('qOpt3').value]
-  socket.emit('addQuestion', {
-    quizId: currentQuizId,
+  const payload = {
     text: el('qText').value,
-    options,
+    options: [el('qOpt0').value, el('qOpt1').value, el('qOpt2').value, el('qOpt3').value],
     correctIndex: Number(el('qCorrect').value),
     timeLimitSeconds: Number(el('qTime').value)
-  }, () => {
-    el('qText').value = ''
-    el('qOpt0').value = ''
-    el('qOpt1').value = ''
-    el('qOpt2').value = ''
-    el('qOpt3').value = ''
-    refreshQuestions()
-  })
+  }
+  if (editingQuestionId) {
+    socket.emit('updateQuestion', { questionId: editingQuestionId, ...payload }, () => {
+      resetQuestionForm()
+      refreshQuestions()
+    })
+  } else {
+    socket.emit('addQuestion', { quizId: currentQuizId, ...payload }, () => {
+      resetQuestionForm()
+      refreshQuestions()
+    })
+  }
 }
 
 el('startSessionBtn').onclick = () => {
