@@ -6,10 +6,14 @@ if (!process.env.HOST_PASSWORD) console.warn('WARNING: HOST_PASSWORD not set, us
 const authenticatedHosts = new Set()
 
 function on(socket, event, handler) {
-  socket.on(event, (arg, cb) => {
-    const ack = typeof cb === 'function' ? cb : () => {}
+  socket.on(event, (a, b) => {
+    // Socket.IO omits the data argument entirely for an ack-only emit
+    // (e.g. socket.emit('listQuizzes', cb)), so the callback can land in
+    // either position — detect it instead of assuming a fixed (arg, cb) shape.
+    const ack = typeof b === 'function' ? b : (typeof a === 'function' ? a : () => {})
+    const arg = typeof a === 'function' ? {} : (a || {})
     try {
-      handler(arg || {}, ack)
+      handler(arg, ack)
     } catch (err) {
       console.error(`Error handling '${event}':`, err)
       ack({ ok: false, error: 'Server error' })
