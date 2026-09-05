@@ -66,7 +66,7 @@ button:hover { background: #6163ee; }
 
 #roomCode { font-size: 3.5rem; font-weight: 700; letter-spacing: 0.15em; display: block; text-align: center; margin: 0.5rem 0; }
 
-#qText { font-size: 2rem; text-align: center; margin: 1.5rem 0; }
+#liveQText { font-size: 2.75rem; font-weight: 700; text-align: center; margin: 1.5rem 0; line-height: 1.25; }
 
 #qOptionsList {
   list-style: none;
@@ -85,7 +85,32 @@ button:hover { background: #6163ee; }
   text-align: center;
 }
 
-#timeLeft, #playerCount { font-size: 1.5rem; font-weight: 700; }
+#clockWrap {
+  position: relative;
+  width: 140px;
+  height: 140px;
+  margin: 1.5rem auto 0;
+}
+#clockSvg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.clockTrack { fill: none; stroke: rgba(255, 255, 255, 0.15); stroke-width: 10; }
+#clockProgress {
+  fill: none;
+  stroke: #4a4de7;
+  stroke-width: 10;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.2s linear;
+}
+#clockWrap #timeLeft {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  font-weight: 700;
+}
+
+#playerCount { font-size: 1.5rem; font-weight: 700; }
 
 #leaderboard, #finalLeaderboard {
   list-style: decimal;

@@ -161,14 +161,15 @@ socket.on('lobbyUpdate', ({ count, participants }) => {
 })
 
 let countdownTimer = null
+const CLOCK_CIRCUMFERENCE = 2 * Math.PI * 54
 
-socket.on('questionStart', ({ index, total, text, options, deadline }) => {
+socket.on('questionStart', ({ index, total, text, options, deadline, timeLimitSeconds }) => {
   el('lobbyView').hidden = true
   el('revealView').hidden = true
   el('questionView').hidden = false
   el('qIndex').textContent = index + 1
   el('qTotal').textContent = total
-  el('qText').textContent = text
+  el('liveQText').textContent = text
   el('qOptionsList').innerHTML = ''
   options.forEach(opt => {
     const li = document.createElement('li')
@@ -176,11 +177,17 @@ socket.on('questionStart', ({ index, total, text, options, deadline }) => {
     el('qOptionsList').appendChild(li)
   })
 
+  const clockProgress = el('clockProgress')
+  clockProgress.style.strokeDasharray = String(CLOCK_CIRCUMFERENCE)
+
   clearInterval(countdownTimer)
   countdownTimer = setInterval(() => {
-    const secondsLeft = Math.max(0, Math.round((deadline - Date.now()) / 1000))
+    const msLeft = Math.max(0, deadline - Date.now())
+    const secondsLeft = Math.round(msLeft / 1000)
     el('timeLeft').textContent = secondsLeft
-    if (secondsLeft <= 0) clearInterval(countdownTimer)
+    const fraction = Math.max(0, Math.min(1, msLeft / (timeLimitSeconds * 1000)))
+    clockProgress.style.strokeDashoffset = String(CLOCK_CIRCUMFERENCE * (1 - fraction))
+    if (msLeft <= 0) clearInterval(countdownTimer)
   }, 200)
 })
 
