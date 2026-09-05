@@ -11,11 +11,6 @@ body {
   padding: 3vh 3vw;
 }
 
-#login, #dashboard, #live {
-  width: 100%;
-  max-width: 900px;
-}
-
 h1, h2, h3 { text-align: center; }
 
 input, select {
@@ -28,10 +23,28 @@ input, select {
 button {
   display: block;
   width: 100%;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
   background: #4a4de7;
   color: #fff;
+  padding: 0.85rem 1rem;
+  font-size: 1rem;
 }
 button:hover { background: #6163ee; }
+
+/* Admin screens (login, quiz management): a comfortable form width,
+   not stretched across the whole viewport. */
+#login, #dashboard {
+  width: 100%;
+  max-width: 440px;
+}
+
+/* Live game screens: wide and large-print, meant to be projected. */
+#live {
+  width: 100%;
+  max-width: 960px;
+}
 
 #quizList, #questionList { list-style: none; padding: 0; text-align: left; }
 
@@ -45,14 +58,13 @@ button:hover { background: #6163ee; }
   border-radius: 8px;
   margin-bottom: 0.5rem;
 }
-
 #quizList li span, #questionList > div span { flex: 1; }
-#quizList button, #questionList button { width: auto; flex: none; }
+#quizList button, #questionList button { width: auto; flex: none; padding: 0.5rem 1rem; }
 
 #playerList { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; }
 #playerList li { background: rgba(255, 255, 255, 0.1); padding: 0.5rem 1rem; border-radius: 999px; margin: 0; }
 
-#roomCode { font-size: 4rem; font-weight: 700; letter-spacing: 0.15em; display: block; text-align: center; }
+#roomCode { font-size: 3.5rem; font-weight: 700; letter-spacing: 0.15em; display: block; text-align: center; margin: 0.5rem 0; }
 
 #qText { font-size: 2rem; text-align: center; margin: 1.5rem 0; }
 
@@ -63,7 +75,7 @@ button:hover { background: #6163ee; }
   grid-template-columns: 1fr 1fr;
   gap: 1rem;
   max-width: 700px;
-  margin: 0 auto;
+  margin: 1.5rem auto;
 }
 #qOptionsList li {
   background: #16213e;
@@ -80,8 +92,15 @@ button:hover { background: #6163ee; }
   max-width: 500px;
   margin: 1rem auto;
   font-size: 1.3rem;
+  text-align: left;
 }
 
 #winner { font-size: 2.5rem; font-weight: 700; }
 
-#nextBtn, #nextBtn2, #startSessionBtn { display: block; width: auto; margin: 1.5rem auto 0; padding: 1rem 2.5rem; font-size: 1.2rem; }
+#nextBtn, #nextBtn2, #startSessionBtn {
+  display: block;
+  width: auto;
+  margin: 1.5rem auto 0;
+  padding: 1rem 2.5rem;
+  font-size: 1.2rem;
+}

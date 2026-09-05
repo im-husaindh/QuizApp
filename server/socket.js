@@ -5,6 +5,14 @@ const HOST_PASSWORD = process.env.HOST_PASSWORD || 'quiz'
 if (!process.env.HOST_PASSWORD) console.warn('WARNING: HOST_PASSWORD not set, using default password "quiz" — set HOST_PASSWORD before a real event.')
 const authenticatedHosts = new Set()
 
+function isValidQuestionPayload({ text, options, correctIndex, timeLimitSeconds }) {
+  return typeof text === 'string' && text.trim() !== '' &&
+    Array.isArray(options) && options.length === 4 &&
+    options.every(o => typeof o === 'string' && o.trim() !== '') &&
+    Number.isInteger(correctIndex) && correctIndex >= 0 && correctIndex <= 3 &&
+    Number.isFinite(timeLimitSeconds) && timeLimitSeconds > 0
+}
+
 function on(socket, event, handler) {
   socket.on(event, (a, b) => {
     // Socket.IO omits the data argument entirely for an ack-only emit
@@ -46,8 +54,9 @@ function registerSocketHandlers(io) {
 
     on(socket, 'addQuestion', (payload, cb) => {
       if (!authenticatedHosts.has(socket.id)) return cb({ ok: false, error: 'Not authenticated' })
+      if (!isValidQuestionPayload(payload)) return cb({ ok: false, error: 'Question text, all 4 options, and a valid time limit are required' })
       const { quizId, text, options, correctIndex, timeLimitSeconds } = payload
-      cb({ question: db.addQuestion(quizId, { text, options, correctIndex, timeLimitSeconds }) })
+      cb({ question: db.addQuestion(quizId, { text: text.trim(), options: options.map(o => o.trim()), correctIndex, timeLimitSeconds }) })
     })
 
     on(socket, 'getQuiz', (payload, cb) => {
@@ -65,8 +74,9 @@ function registerSocketHandlers(io) {
 
     on(socket, 'updateQuestion', (payload, cb) => {
       if (!authenticatedHosts.has(socket.id)) return cb({ ok: false, error: 'Not authenticated' })
+      if (!isValidQuestionPayload(payload)) return cb({ ok: false, error: 'Question text, all 4 options, and a valid time limit are required' })
       const { questionId, text, options, correctIndex, timeLimitSeconds } = payload
-      cb({ question: db.updateQuestion(questionId, { text, options, correctIndex, timeLimitSeconds }) })
+      cb({ question: db.updateQuestion(questionId, { text: text.trim(), options: options.map(o => o.trim()), correctIndex, timeLimitSeconds }) })
     })
 
     on(socket, 'startSession', (payload, cb) => {

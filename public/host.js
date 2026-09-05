@@ -115,22 +115,27 @@ function resetQuestionForm() {
 el('cancelEditBtn').onclick = resetQuestionForm
 
 el('addQuestionBtn').onclick = () => {
+  const text = el('qText').value.trim()
+  const options = [el('qOpt0').value.trim(), el('qOpt1').value.trim(), el('qOpt2').value.trim(), el('qOpt3').value.trim()]
+  if (!text || options.some(o => !o)) {
+    alert('Question text and all 4 options are required.')
+    return
+  }
   const payload = {
-    text: el('qText').value,
-    options: [el('qOpt0').value, el('qOpt1').value, el('qOpt2').value, el('qOpt3').value],
+    text,
+    options,
     correctIndex: Number(el('qCorrect').value),
     timeLimitSeconds: Number(el('qTime').value)
   }
+  const onDone = (res) => {
+    if (res && res.ok === false) return alert(res.error)
+    resetQuestionForm()
+    refreshQuestions()
+  }
   if (editingQuestionId) {
-    socket.emit('updateQuestion', { questionId: editingQuestionId, ...payload }, () => {
-      resetQuestionForm()
-      refreshQuestions()
-    })
+    socket.emit('updateQuestion', { questionId: editingQuestionId, ...payload }, onDone)
   } else {
-    socket.emit('addQuestion', { quizId: currentQuizId, ...payload }, () => {
-      resetQuestionForm()
-      refreshQuestions()
-    })
+    socket.emit('addQuestion', { quizId: currentQuizId, ...payload }, onDone)
   }
 }
 
@@ -156,10 +161,8 @@ socket.on('lobbyUpdate', ({ count, participants }) => {
 })
 
 let countdownTimer = null
-let currentTotal = null
 
 socket.on('questionStart', ({ index, total, text, options, deadline }) => {
-  currentTotal = total
   el('lobbyView').hidden = true
   el('revealView').hidden = true
   el('questionView').hidden = false
@@ -181,12 +184,21 @@ socket.on('questionStart', ({ index, total, text, options, deadline }) => {
   }, 200)
 })
 
-socket.on('reveal', ({ index, leaderboard }) => {
+socket.on('reveal', ({ leaderboard, isLast }) => {
   clearInterval(countdownTimer)
   el('questionView').hidden = true
   el('revealView').hidden = false
-  el('leaderboard').innerHTML = leaderboard.map(p => `<li>${escapeHtml(p.nickname)}: ${p.score}</li>`).join('')
-  el('nextBtn2').textContent = (index + 1 >= currentTotal) ? 'Results' : 'Next question'
+  if (isLast) {
+    el('revealHeading').textContent = 'All questions answered!'
+    el('leaderboard').hidden = true
+    el('leaderboard').innerHTML = ''
+    el('nextBtn2').textContent = 'Show Results'
+  } else {
+    el('revealHeading').textContent = 'Leaderboard'
+    el('leaderboard').hidden = false
+    el('leaderboard').innerHTML = leaderboard.map(p => `<li>${escapeHtml(p.nickname)}: ${p.score}</li>`).join('')
+    el('nextBtn2').textContent = 'Next question'
+  }
 })
 
 socket.on('final', ({ leaderboard, winner }) => {

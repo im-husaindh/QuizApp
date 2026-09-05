@@ -117,7 +117,8 @@ function triggerReveal(roomCode) {
     score: p.totalScore,
     rank: leaderboard.findIndex(l => l.nickname === p.nickname) + 1
   }))
-  const payload = { index: room.currentIndex, correctIndex: q.correctIndex, leaderboard: leaderboard.slice(0, 10), personal }
+  const isLast = room.currentIndex === room.questions.length - 1
+  const payload = { index: room.currentIndex, correctIndex: q.correctIndex, leaderboard: leaderboard.slice(0, 10), isLast, personal }
   if (room.onReveal) room.onReveal(payload)
 }
 

@@ -5,9 +5,10 @@ body {
   max-width: 480px;
   margin: 0 auto;
   box-sizing: border-box;
-  padding: 1rem;
+  padding: 1.5rem;
   display: flex;
   flex-direction: column;
+  justify-content: center;
   background: #f5f5f7;
   color: #1a1a2e;
 }
@@ -17,51 +18,45 @@ h1, h2 { text-align: center; }
 button {
   display: block;
   width: 100%;
+  max-width: 320px;
+  margin: 0.5rem auto;
   border: none;
+  border-radius: 10px;
   cursor: pointer;
   color: #fff;
   background: #4a4de7;
+  padding: 1rem;
+  font-size: 1.05rem;
 }
 button:hover { background: #6163ee; }
 
-#joinView, #waitingView, #revealView, #finalView {
+#joinView, #waitingView, #questionView, #revealView, #finalView {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  flex: 1;
-}
-
-#questionView {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  min-height: 0;
 }
 
 #qText { font-size: 1.4rem; text-align: center; margin: 0.5rem 0; }
 #timeLeft { font-size: 1.75rem; font-weight: 700; text-align: center; }
 
 #options {
-  flex: 1;
-  min-height: 0;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  grid-template-rows: 1fr 1fr;
   gap: 0.75rem;
   margin-top: 1rem;
 }
 #options button {
-  width: 100%;
-  height: 100%;
+  max-width: none;
   margin: 0;
+  aspect-ratio: 3 / 2;
   border-radius: 16px;
-  font-size: 1.3rem;
+  font-size: 1.25rem;
   font-weight: 600;
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 0.5rem;
+  padding: 0.75rem;
 }
 #options button:hover { filter: brightness(1.1); }
 #options button:nth-child(1) { background: #e21b3c; }
@@ -74,4 +69,4 @@ button:hover { background: #6163ee; }
 #resultMsg { text-align: center; }
 #myScore { font-size: 1.5rem; font-weight: 700; text-align: center; }
 
-#finalLeaderboard { list-style: decimal; font-size: 1.2rem; }
+#finalLeaderboard { list-style: decimal; font-size: 1.2rem; max-width: 320px; margin: 0 auto; }
