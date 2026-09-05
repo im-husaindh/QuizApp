@@ -38,6 +38,9 @@ function joinRoom(roomCode, playerId, nickname) {
   // rejoin once the lobby has closed. Add Socket.IO session resumption +
   // a persisted playerId (e.g. localStorage) if late-rejoin becomes a requirement.
   if (room.phase !== 'lobby') return { ok: false, error: 'Quiz already in progress' }
+  if (typeof nickname !== 'string' || !nickname.trim()) {
+    return { ok: false, error: 'Nickname required' }
+  }
   for (const p of room.players.values()) {
     if (p.nickname.toLowerCase() === nickname.toLowerCase()) {
       return { ok: false, error: 'Nickname already taken' }
@@ -109,7 +112,12 @@ function triggerReveal(roomCode) {
     player.totalScore += points
   }
   const leaderboard = buildLeaderboard(room)
-  const payload = { index: room.currentIndex, correctIndex: q.correctIndex, leaderboard }
+  const personal = [...room.players.entries()].map(([playerId, p]) => ({
+    playerId,
+    score: p.totalScore,
+    rank: leaderboard.findIndex(l => l.nickname === p.nickname) + 1
+  }))
+  const payload = { index: room.currentIndex, correctIndex: q.correctIndex, leaderboard: leaderboard.slice(0, 10), personal }
   if (room.onReveal) room.onReveal(payload)
 }
 
