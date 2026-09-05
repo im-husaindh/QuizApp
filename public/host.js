@@ -4,6 +4,10 @@ let currentRoomCode = null
 
 const el = (id) => document.getElementById(id)
 
+function escapeHtml(str) {
+  return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))
+}
+
 el('loginBtn').onclick = () => {
   socket.emit('hostLogin', el('password').value, (res) => {
     if (res.ok) {
@@ -50,7 +54,7 @@ function openQuizEditor(quizId, title) {
 
 function refreshQuestions() {
   socket.emit('getQuiz', { quizId: currentQuizId }, ({ questions }) => {
-    el('questionList').innerHTML = questions.map(q => `<p>${q.text}</p>`).join('')
+    el('questionList').innerHTML = questions.map(q => `<p>${escapeHtml(q.text)}</p>`).join('')
   })
 }
 
@@ -90,7 +94,7 @@ el('nextBtn2').onclick = goToNext
 
 socket.on('lobbyUpdate', ({ count, participants }) => {
   el('playerCount').textContent = count
-  el('playerList').innerHTML = participants.map(n => `<li>${n}</li>`).join('')
+  el('playerList').innerHTML = participants.map(n => `<li>${escapeHtml(n)}</li>`).join('')
 })
 
 socket.on('questionStart', ({ index, total }) => {
@@ -104,12 +108,12 @@ socket.on('questionStart', ({ index, total }) => {
 socket.on('reveal', ({ leaderboard }) => {
   el('questionView').hidden = true
   el('revealView').hidden = false
-  el('leaderboard').innerHTML = leaderboard.map(p => `<li>${p.nickname}: ${p.score}</li>`).join('')
+  el('leaderboard').innerHTML = leaderboard.map(p => `<li>${escapeHtml(p.nickname)}: ${p.score}</li>`).join('')
 })
 
 socket.on('final', ({ leaderboard, winner }) => {
   el('revealView').hidden = true
   el('finalView').hidden = false
   el('winner').textContent = winner
-  el('finalLeaderboard').innerHTML = leaderboard.map(p => `<li>${p.nickname}: ${p.score}</li>`).join('')
+  el('finalLeaderboard').innerHTML = leaderboard.map(p => `<li>${escapeHtml(p.nickname)}: ${p.score}</li>`).join('')
 })
