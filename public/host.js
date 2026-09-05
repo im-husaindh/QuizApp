@@ -156,8 +156,10 @@ socket.on('lobbyUpdate', ({ count, participants }) => {
 })
 
 let countdownTimer = null
+let currentTotal = null
 
 socket.on('questionStart', ({ index, total, text, options, deadline }) => {
+  currentTotal = total
   el('lobbyView').hidden = true
   el('revealView').hidden = true
   el('questionView').hidden = false
@@ -179,11 +181,12 @@ socket.on('questionStart', ({ index, total, text, options, deadline }) => {
   }, 200)
 })
 
-socket.on('reveal', ({ leaderboard }) => {
+socket.on('reveal', ({ index, leaderboard }) => {
   clearInterval(countdownTimer)
   el('questionView').hidden = true
   el('revealView').hidden = false
   el('leaderboard').innerHTML = leaderboard.map(p => `<li>${escapeHtml(p.nickname)}: ${p.score}</li>`).join('')
+  el('nextBtn2').textContent = (index + 1 >= currentTotal) ? 'Results' : 'Next question'
 })
 
 socket.on('final', ({ leaderboard, winner }) => {
