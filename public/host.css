@@ -81,7 +81,8 @@ button:hover { background: #6163ee; }
 #playerList { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; }
 #playerList li { background: rgba(255, 255, 255, 0.1); padding: 0.5rem 1rem; border-radius: 999px; margin: 0; }
 
-#roomCode { font-size: 3.5rem; font-weight: 700; letter-spacing: 0.15em; display: block; text-align: center; margin: 0.5rem 0; }
+#liveRoomCode { text-align: center; font-size: 1.25rem; color: #cfcfe8; margin: 0 0 1.5rem; }
+#roomCode { font-size: 2.5rem; font-weight: 700; letter-spacing: 0.15em; color: #fff; }
 
 #liveQText { font-size: 2.75rem; font-weight: 700; text-align: center; margin: 1.5rem 0; line-height: 1.25; }
 
@@ -95,12 +96,17 @@ button:hover { background: #6163ee; }
   margin: 1.5rem auto;
 }
 #qOptionsList li {
-  background: #16213e;
   padding: 1.25rem;
   border-radius: 10px;
   font-size: 1.4rem;
+  font-weight: 600;
   text-align: center;
+  color: #fff;
 }
+#qOptionsList li:nth-child(1) { background: #e21b3c; }
+#qOptionsList li:nth-child(2) { background: #1368ce; }
+#qOptionsList li:nth-child(3) { background: #d89e00; }
+#qOptionsList li:nth-child(4) { background: #26890c; }
 
 #clockWrap {
   position: relative;

@@ -34,10 +34,10 @@ function getRoomState(roomCode) {
 function joinRoom(roomCode, playerId, nickname) {
   const room = rooms.get(roomCode)
   if (!room) return { ok: false, error: 'Room not found' }
-  // ponytail: no mid-quiz join/rejoin support — a disconnected player cannot
-  // rejoin once the lobby has closed. Add Socket.IO session resumption +
-  // a persisted playerId (e.g. localStorage) if late-rejoin becomes a requirement.
-  if (room.phase !== 'lobby') return { ok: false, error: 'Quiz already in progress' }
+  // Late joins are allowed any time before the quiz ends: a player who
+  // joins mid-question just missed their chance to answer it (scores 0
+  // for that question, like a no-answer) and picks up from the next one.
+  if (room.phase === 'final') return { ok: false, error: 'Quiz has ended' }
   if (typeof nickname !== 'string' || !nickname.trim()) {
     return { ok: false, error: 'Nickname required' }
   }
