@@ -49,12 +49,15 @@ function joinRoom(roomCode, playerId, nickname) {
 
 function lobbySnapshot(roomCode) {
   const room = rooms.get(roomCode)
+  if (!room) return { count: 0, participants: [] }
   const participants = [...room.players.values()].map(p => p.nickname)
   return { count: participants.length, participants }
 }
 
 function startQuestion(roomCode, onReveal) {
   const room = rooms.get(roomCode)
+  if (!room) return undefined
+  if (room.phase !== 'lobby' && room.phase !== 'reveal') return undefined
   room.currentIndex += 1
   if (room.currentIndex >= room.questions.length) {
     room.phase = 'final'
@@ -118,6 +121,7 @@ function buildLeaderboard(room) {
 
 function getFinal(roomCode) {
   const room = rooms.get(roomCode)
+  if (!room) return { leaderboard: [], winner: null }
   const leaderboard = buildLeaderboard(room)
   return { leaderboard, winner: leaderboard[0] ? leaderboard[0].nickname : null }
 }
